@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %} home {% endblock title %}
+
+{% block body %} 
+{% load humanize %}
+<div class="container my-5">
+
+        <h2 class="blog-post-title">{{post.title}}</h2>
+        <p class="blog-post-meta">{{post.time}} <a href="/about">{{post.author}}</a></p>
+        <p> {{post.content}}</p>        
+</div>
+
+<div class="container">
+<h2>Comments({{comments.count}})<h2>
+{% if user.is_authenticated %}
+    
+<form action="/blog/postComment" method="post">
+{% csrf_token %}
+
+<div class="form-group">
+    <label for="comment">post comment</label>
+    <input type="text" class="form-control" name="comment" placeholder="Enter comment here">
+    
+    
+  </div>
+
+<div class="form-group">
+
+<input type="hidden" name="postSno" value={{post.sno}}>
+<input type="hidden" name="parentSno" value="">
+<button type="submit" class="btn btn-primary">Submit</button>
+</div>
+</form>
+{% else %}
+<p> please log in for comment</p>
+
+{% endif %}
+{% for comment  in comments  %}
+    
+    <div class="row my-2">
+        <div class="col-md-1 ">
+        <img class"rounded mx-auto d-block w-100 p-2 border border-dark" src="/static/img/user.jpg" alt="user">
+        </div>
+
+        <div class="col md-11 " ><b>{{ comment.user.username }}</b> <span class="badge badge-secondary">{{user.timestamp | naturaltime}}</span>
+        <div>{{comment.comment}}</div>
+        <div class="reply mx-0">
+        
+        
+  <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#replyBox{{comment.sno}}" aria-expanded="false" aria-controls="collapseExample">
+    reply
+  </button>
+
+<div class="collapse" id="replyBox{{comment.sno}}">
+  <div class="card card-body my-2">
+    <form action="/blog/postComment" method="post">
+{% csrf_token %}
+
+<div class="form-group">
+    <label for="comment">post reply</label>
+    <input type="text" class="form-control" name="comment" placeholder="Enter comment here">
+    
+    <input type="hidden" name="parentSno" value={{comment.sno}}>
+  </div>
+
+<div class="form-group">
+
+<input type="hidden" name="postSno" value={{post.sno}}>
+<button type="submit" class="btn btn-primary">Submit</button>
+</div>
+</form>
+  </div>
+</div>
+        
+        </div>
+        </div>
+        <div class="replies bg-danger"></div>
+        {% for reply in repDict %}
+        {{reply}}
+        {% endfor %}
+    </div>
+{% endfor %}
+</div>
+ {% endblock body %}
+
+
+
